@@ -1,0 +1,132 @@
+<?php
+
+date_default_timezone_set('UTC');
+
+/**
+ * environment loader
+ *
+ * @param $variable
+ * @param $default
+ *
+ * @return array|false|string
+ */
+function env($variable, $default)
+{
+    return getenv($variable) ? getenv($variable) : $default;
+}
+
+/**
+ * Database info
+ */
+$dbhost = env('DB_HOST', 'localhost');
+$dbuser = env('DB_USER', 'username');
+$dbpass = env('DB_PASSWORD', 'password');
+$db     = env('DB_NAME', 'database_name');
+$dbport = env('DB_PORT', 3306);
+
+/**
+ * Content database info
+ */
+$use_content_db = FALSE;
+$content_dbhost = env('CONTENT_DB_HOST', 'remote_host');
+$content_dbuser = env('CONTENT_DB_USER', 'remote_username');
+$content_dbpass = env('CONTENT_DB_PASSWORD', 'remote_password');
+$content_db     = env('CONTENT_DB_NAME', 'remote_database_name');
+$content_dbport = env('CONTENT_DB_PORT', 3306);
+
+/**
+  Limit editor listings to a specified expansion
+  ----------------------------------------------
+   -1 | All Expansions
+    0 | Classic Everquest
+    1 | Ruins of Kunark
+    2 | Scars of Velious
+    3 | Shadows of Luclin
+    4 | Planes of Power
+    5 | Legacy of Ykesha
+    6 | Lost Dungeons of Norrath
+    7 | Gates of Discord
+    8 | Omens of War
+    9 | Dragons of Norrath
+   10 | Depths of Darkhollow
+   11 | Prophecy of Ro
+   12 | The Serpents Spine
+   13 | The Buried Sea
+   14 | Secrets of Faydwer
+   15 | Seeds of Destruction
+   16 | Underfoot
+   17 | House of Thule
+   18 | Veil of Alaris
+   19 | Rain of Fear
+   20 | Call of the Forsaken
+   21 | The Darkened Sea
+   22 | The Broken Mirror
+   23 | Empires of Kunark
+   24 | Ring of Scale
+   25 | The Burning Lands
+   26 | Torment of Velious
+   99 | Other
+ */
+
+$expansion_limit = env('EXPANSION_LIMIT', 26);
+
+/**
+ * How NPCs are listed. 1 = by NPCID (zoneidnumber*1000), 2 = By spawn2 entry
+ */
+$npc_list         = 1;
+$spawngroup_limit = 150;
+
+/**
+ * Dont want to have to type the username and password every time you start the editor?
+ *
+ * Set the two variables below to the values you want to be in the form when you start it up.
+ *
+ * (default login: admin  pw: password)
+ */
+$login    = '';
+$password = '';
+
+/**
+ * Logs directory location
+ */
+$logs_dir = env('LOG_DIRECTORY', 'logs');
+
+/**
+ * Log SQL queries:  1 = on, 0 = off
+ */
+$logging  = env('LOG_SQL_WRITE_QUERIES', 1);
+$filetime = date("m-Y");
+$log_file = $logs_dir . "/sql_log_$filetime.sql";
+
+/**
+ * Log all MySQL queries (If disabled only write entries are logged - recommended.)
+ */
+$log_all = env('LOG_ALL_SQL_QUERIES', 0);
+
+/**
+ * Log all MySQL queries that result in an error
+ */
+$log_error = env('LOG_SQL_ERRORS', 0);
+
+/**
+ * Enable or disable user logins.
+ */
+$enable_user_login = env('ENABLE_USER_LOGIN', 1);
+
+/**
+ * Enable or disable read only guest mode log in
+ */
+$enable_guest_mode = env('GUEST_MODE_ENABLE', 1);
+
+/**
+ * Path for quests without trailing slash
+ */
+$quest_path = "/var/www/quests";
+
+/**
+ * Perl scripts
+ */
+$perl_path     = "perl";
+$perl_log_file = $logs_dir . "/perl_log_$filetime.log";
+
+?>

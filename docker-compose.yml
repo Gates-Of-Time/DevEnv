@@ -1,0 +1,152 @@
+version: '3'
+services:
+  editor:
+    image: fvproject/peq-editor:latest
+    restart: unless-stopped
+    networks:
+      - fvproject
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: eqemu
+      DB_USER: eqemu
+      DB_PASSWORD: password
+      TZ: ${TZ:-US/Central}
+    volumes:
+      - quests:/var/www/quests
+      - www:/var/www/html
+      - ./config/peqeditor.config.php:/var/www/html/config.php
+
+
+  maps:
+    image: fvproject/maps:latest
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    networks:
+      - fvproject
+    volumes:
+      - maps:/home/eqemu/maps
+
+
+  quests:
+    image: fvproject/quests:latest
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    networks:
+      - fvproject
+    volumes:
+      - quests:/home/eqemu/quests
+
+
+  shared_memory:
+    image: fvproject/eqemu-server:latest
+    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "/usr/local/bin/shared_memory"]
+    stdin_open: true
+    tty: true
+    environment:
+      - DATABASE_URL=http://db.projecteq.net/latest
+    networks:
+      - fvproject
+    depends_on:
+      - db
+    volumes:
+      - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
+      - ./config/eqemu_config.json:/home/eqemu/eqemu_config.json
+      - ./config/login.json:/home/eqemu/login.json
+      - ./logs:/home/eqemu/logs
+      - shared:/home/eqemu/shared
+      - quests:/home/eqemu/quests
+      - maps:/home/eqemu/maps
+      - plugins:/home/eqemu/plugins
+
+
+  world:
+    image: fvproject/eqemu-server:latest
+    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "/usr/local/bin/world"]
+    stdin_open: true
+    tty: true
+    networks:
+      - fvproject
+    ports:
+      - "5998:5998/tcp"
+      - "5998:5998/udp"
+      - "5999:5999/tcp"
+      - "5999:5999/udp"
+      - "9000:9000/tcp"
+      - "9000:9000/udp"
+      - "9001:9001/tcp"
+      - "9001:9001/udp"
+      - "7778:7778/tcp"
+      - "7778:7778/udp"
+      - "9080:9080/tcp"
+      - "9081:9081/tcp"
+    depends_on:
+      - shared_memory
+      - db
+    volumes:
+      - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
+      - ./config/eqemu_config.json:/home/eqemu/eqemu_config.json
+      - ./config/login.json:/home/eqemu/login.json
+      - ./logs:/home/eqemu/logs
+      - shared:/home/eqemu/shared
+      - quests:/home/eqemu/quests
+      - maps:/home/eqemu/maps
+      - plugins:/home/eqemu/plugins
+
+
+  zone:
+    image: fvproject/eqemu-server:latest
+    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "/usr/local/bin/eqlaunch", "zone"]
+    stdin_open: true
+    restart: unless-stopped
+    networks:
+      - fvproject
+    ports:
+      - "7000-7100:7000-7100"
+      - "7000-7100:7000-7100/udp"
+    tty: true
+    depends_on:
+      - shared_memory
+      - world
+      - db
+    volumes:
+      - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
+      - ./config/eqemu_config.json:/home/eqemu/eqemu_config.json
+      - ./config/login.json:/home/eqemu/login.json
+      - ./logs:/home/eqemu/logs
+      - shared:/home/eqemu/shared
+      - quests:/home/eqemu/quests
+      - maps:/home/eqemu/maps
+      - plugins:/home/eqemu/plugins
+
+
+  db:
+    image: mariadb
+    restart: always
+    networks:
+      - fvproject
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_USER: eqemu
+      MARIADB_PASSWORD: password
+      MARIADB_DATABASE: eqemu
+      MARIADB_ROOT_PASSWORD: password
+    volumes:
+      - database:/var/lib/mysql
+
+networks:
+  fvproject:
+
+volumes:
+  www:
+  maps:
+  quests:
+  plugins:
+  shared:
+  database:

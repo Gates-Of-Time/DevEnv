@@ -1,0 +1,9 @@
+logs/*
+maps/*
+quests/*
+shared/*
+source/*
+plugins/*
+peqeditor
+
+config/eqemu_config.json
