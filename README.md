@@ -5,7 +5,19 @@ Clone this repo to your local machine:
   git clone git@github.com:whatever/whatever.git
 ```
 
-First copy the `config/eqemu_config.json.example` to `config/eqemu_config.json` and configure it to your settings
+First copy the `config/eqemu_config.json.example` to `config/eqemu_config.json` and configure it to your settings and make sure you open the following ports(TCP/UDP) on your router to forward to the machine you are running this:
+```
+  5998
+  5999
+  7778
+  9000
+  9001
+  9080
+  9081
+  7000-7100
+```
+
+If you want to access PEQEditor (http://127.0.0.1:8080) or Mysql Database from host machine, open ports `8080` and `3306`
 
 Then run the provision command first. You will be prompted to which database you would like to install:
 ```
