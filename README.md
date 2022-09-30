@@ -2,7 +2,7 @@
 
 Clone this repo to your local machine:
 ```
-  git clone git@github.com:whatever/whatever.git
+  git clone git@github.com:Gates-Of-Time/DevEnv.git
 ```
 
 First copy the `config/eqemu_config.json.example` to `config/eqemu_config.json` and configure it to your settings and make sure you open the following ports(TCP/UDP) on your router to forward to the machine you are running this:
