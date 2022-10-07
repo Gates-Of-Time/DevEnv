@@ -1,7 +1,7 @@
 FROM ubuntu:focal
 
 ARG eqemu_release_tag=latest
-ENV EQEMU_RELEASE_TAG=$eqemu_release_tag
+ENV EQEMU_RELEASE_TAG=0b3065d7a92c3428e109c10242e86568f9791365
 
 ENV EQEMU_HOME=/home/eqemu
 ENV EQEMU_BUILD_DIR=/home/eqemu/build
@@ -25,6 +25,7 @@ RUN groupadd eqemu && \
 # Copy eqemu sources
 RUN git clone $SERVER_URL $EQEMU_SRC_DIR && \
     cd $EQEMU_SRC_DIR && \
+    git checkout $EQEMU_RELEASE_TAG && \
     git submodule init && \
     git submodule update
 

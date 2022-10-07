@@ -15,10 +15,12 @@ services:
       DB_USER: eqemu
       DB_PASSWORD: password
       TZ: ${TZ:-US/Central}
+    env_file:
+      - ./config/eqemu.env
     volumes:
+      - ./config/peqeditor.config.php:/var/www/html/config.php
       - quests:/var/www/quests
       - www:/var/www/html
-      - ./config/peqeditor.config.php:/var/www/html/config.php
 
 
   maps:
@@ -48,21 +50,24 @@ services:
     entrypoint: ["./wait-for-it.sh", "db:3306", "--", "/usr/local/bin/shared_memory"]
     stdin_open: true
     tty: true
-    environment:
-      - DATABASE_URL=http://db.projecteq.net/latest
+    env_file:
+      - ./config/eqemu.env
     networks:
       - fvproject
     depends_on:
       - db
     volumes:
-      - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
+      - ./config/my.cnf:/home/eqemu/config/my.cnf
       - ./config/eqemu_config.json:/home/eqemu/eqemu_config.json
       - ./config/login.json:/home/eqemu/login.json
+      - ./scripts/provision.sh:/home/eqemu/provision.sh
+      - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
       - ./logs:/home/eqemu/logs
       - shared:/home/eqemu/shared
       - quests:/home/eqemu/quests
       - maps:/home/eqemu/maps
       - plugins:/home/eqemu/plugins
+      - ./config:/home/eqemu/config
 
 
   world:
@@ -70,6 +75,8 @@ services:
     entrypoint: ["./wait-for-it.sh", "db:3306", "--", "/usr/local/bin/world"]
     stdin_open: true
     tty: true
+    env_file:
+      - ./config/eqemu.env
     networks:
       - fvproject
     ports:
@@ -104,6 +111,8 @@ services:
     entrypoint: ["./wait-for-it.sh", "db:3306", "--", "/usr/local/bin/eqlaunch", "zone"]
     stdin_open: true
     restart: unless-stopped
+    env_file:
+      - ./config/eqemu.env
     networks:
       - fvproject
     ports:

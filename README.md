@@ -24,11 +24,6 @@ Then run the provision command first. You will be prompted to which database you
   ./provision.sh
 ```
 
-Give shared memory a first run to preload everything:
-```
-  docker-compose run shared_memory
-```
-
 Once you have provisioned everything and preran shared_memory, you can start up the services:
 ```
   docker-compose up
