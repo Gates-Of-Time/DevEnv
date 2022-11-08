@@ -1,7 +1,7 @@
 FROM ubuntu:focal
 
 ARG eqemu_release_tag=latest
-ENV EQEMU_RELEASE_TAG=0b3065d7a92c3428e109c10242e86568f9791365
+ENV EQEMU_RELEASE_TAG=c8b3ca53fe083c1b869625bbae1b5f9b13b75f02
 
 ENV EQEMU_HOME=/home/eqemu
 ENV EQEMU_BUILD_DIR=/home/eqemu/build

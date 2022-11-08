@@ -9,6 +9,7 @@ services:
       - "8080:80"
     depends_on:
       - db
+      - quests
     environment:
       DB_HOST: db
       DB_NAME: eqemu
@@ -62,12 +63,13 @@ services:
       - ./config/login.json:/home/eqemu/login.json
       - ./scripts/provision.sh:/home/eqemu/provision.sh
       - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
+      - ./backupdb.sh:/home/eqemu/backupdb.sh
       - ./logs:/home/eqemu/logs
+      - ./config:/home/eqemu/config
       - shared:/home/eqemu/shared
       - quests:/home/eqemu/quests
       - maps:/home/eqemu/maps
       - plugins:/home/eqemu/plugins
-      - ./config:/home/eqemu/config
 
 
   world:
@@ -155,7 +157,17 @@ networks:
 volumes:
   www:
   maps:
-  quests:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${PWD}/maps
   plugins:
   shared:
   database:
+  quests:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${PWD}/quests

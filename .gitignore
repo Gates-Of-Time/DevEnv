@@ -1,9 +1,9 @@
-logs/*
-maps/*
-quests/*
 shared/*
 source/*
 plugins/*
+logs/*
+maps/*
+quests/*
 peqeditor
 
-config/eqemu_config.json
+config/eqemu_env.sh

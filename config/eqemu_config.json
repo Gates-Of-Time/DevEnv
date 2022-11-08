@@ -1,0 +1,76 @@
+{
+    "server": {
+        "zones": {
+            "defaultstatus": "0",
+            "ports": {
+                "low": "7000",
+                "high": "7100"
+            }
+        },
+        "qsdatabase": {
+            "host": "db",
+            "port": "3306",
+            "username": "eqemu",
+            "password": "password",
+            "db": "eqemu"
+        },
+        "chatserver": {
+            "port": "7778",
+            "host": "69.153.25.181"
+        },
+        "mailserver": {
+            "host": "69.153.25.181",
+            "port": "7778"
+        },
+        "webinterface": {
+            "port": "9081"
+        },
+        "world": {
+            "loginserver1": {
+                "account": "rgirard592",
+                "password": "qwerty12",
+                "legacy": "1",
+                "host": "login.eqemulator.net",
+                "port": "5998"
+            },
+            "tcp": {
+                "host": "69.153.25.181",
+                "port": "9001"
+            },
+            "telnet": {
+                "ip": "0.0.0.0",
+                "port": "9000",
+                "enabled": true
+            },
+            "key": "somerandomtextstringCHANGEMECHANGEME",
+            "http": {
+                "port": "9080",
+                "enabled": "true",
+                "mimefile": "mime.types"
+            },
+            "shortname": "FVProject Dev",
+            "longname": "FVProject Dev",
+            "address": "69.153.25.181",
+            "localaddress": "69.153.25.181"
+        },
+        "database": {
+            "db": "eqemu",
+            "host": "db",
+            "port": "3306",
+            "username": "eqemu",
+            "password": "password"
+        },
+        "files": {
+          "opcodes": "opcodes/opcodes.conf",
+          "mail_opcodes": "opcodes/mail_opcodes.conf"
+        },
+        "directories": {
+          "patches": "./",
+          "opcodes": "opcodes/"
+        },
+        "launcher": {
+            "exe": "/home/eqemu/bin/zone",
+            "reterminate":"1000"
+        }
+    }
+}

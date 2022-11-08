@@ -1,17 +1,16 @@
 #!/bin/sh
 set -e
 
-source_database()
+update_database()
 {
   DATABASE_URL=$1
 
   rm -rf db
   mkdir -p db
 
-  wget -O db/latest.sql.gz $DATABASE_URL
-  wget -O db/peq-editor-schema.sql https://github.com/ProjectEQ/peqphpeditor/raw/master/sql/schema.sql
+  wget -O db/latest.zip $DATABASE_URL
 
-  gunzip db/latest.sql.gz
+  unzip -j -d db db/latest.zip
 
   echo "Waiting for database to start up..."
   while ! mysqladmin ping -h"db" --silent; do
@@ -20,11 +19,42 @@ source_database()
 
   cd db
 
-  sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i latest.sql
+  #sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i latest.sql
+  #sed '/INSERT INTO `aa_ability`/d' -i latest.sql
+
+  echo "Updating database. This may take a few minutes..."
+  cat *.sql  > latest.sql
+  mysql --defaults-extra-file=../config/my.cnf eqemu < latest.sql
+
+  cd ..
+
+  rm -rf db
+}
+
+source_database()
+{
+  DATABASE_URL=$1
+
+  rm -rf db
+  mkdir -p db
+
+  wget -O db/latest.zip $DATABASE_URL
+  wget -O db/peq-editor-schema.sql https://github.com/ProjectEQ/peqphpeditor/raw/master/sql/schema.sql
+
+  unzip -j -d db db/latest.zip
+
+  echo "Waiting for database to start up..."
+  while ! mysqladmin ping -h"db" --silent; do
+    sleep 1
+  done
+
+  cd db
+
+  #sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i latest.sql
 
   echo "Sourcing database. This may take a few minutes..."
+  cat *.sql  > latest.sql
   mysql --defaults-extra-file=../config/my.cnf eqemu < latest.sql
-  mysql --defaults-extra-file=../config/my.cnf eqemu < peq-editor-schema.sql
 
   cd ..
 
@@ -65,24 +95,28 @@ echo ""
 echo "1.) FVProject Classic"
 echo "2.) FVProject Kunark"
 echo "3.) FVProject Latest"
-echo "4.) Exit"
+echo "4.) Update Database Content"
+echo "5.) Exit"
 
 read selection
 
 case $selection in
   1)
-    source_database http://kunark.fvproject.com/db_dump/latest.sql.gz
+    source_database http://kunark.fvproject.com/db_dump/latest.zip
     set_to classic
     ;;
   2)
-    source_database http://kunark.fvproject.com/db_dump/latest.sql.gz
+    source_database http://kunark.fvproject.com/db_dump/latest.zip
     set_to kunark
     ;;
   3)
-    source_database http://kunark.fvproject.com/db_dump/latest.sql.gz
+    source_database http://kunark.fvproject.com/db_dump/latest.zip
     set_to latest
     ;;
   4)
+    update_database http://kunark.fvproject.com/db_dump/latest.zip
+    ;;
+  5)
     cleanup
     ;;
   *)
