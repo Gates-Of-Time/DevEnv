@@ -1,3 +1,4 @@
+config/eqemu.env
 shared/*
 source/*
 plugins/*
