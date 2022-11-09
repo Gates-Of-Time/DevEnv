@@ -55,6 +55,7 @@ source_database()
   echo "Sourcing database. This may take a few minutes..."
   cat *.sql  > latest.sql
   mysql --defaults-extra-file=../config/my.cnf eqemu < latest.sql
+  mysql --defaults-extra-file=../config/my.cnf eqemu -e "UPDATE launcher SET dynamics = 10;"
 
   cd ..
 

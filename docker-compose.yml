@@ -122,7 +122,6 @@ services:
       - "7000-7100:7000-7100/udp"
     tty: true
     depends_on:
-      - shared_memory
       - world
       - db
     volumes:
