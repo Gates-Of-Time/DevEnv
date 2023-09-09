@@ -6,7 +6,7 @@ source/*
 plugins/*
 logs/*
 maps/*
-quests/*
+quests
 lua_modules/*
 www
 peqeditor
