@@ -1,3 +1,4 @@
+.DS_Store
 config/eqemu.env
 config/eqemu_config.json
 shared/*
@@ -6,6 +7,8 @@ plugins/*
 logs/*
 maps/*
 quests/*
+lua_modules/*
+www
 peqeditor
 
 config/eqemu_env.sh

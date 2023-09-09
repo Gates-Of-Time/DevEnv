@@ -44,7 +44,10 @@ RUN a2enmod file_cache
 RUN a2enmod headers
 RUN a2enmod rewrite
 
+ENV EDITOR_VERSION=b23e643705c2137e0c797a9411fd2bf4c34a8055
 ENV EDITOR_URL=https://github.com/ProjectEQ/peqphpeditor.git
 ENV EDITOR_DIR=/var/www/html
 
+RUN git config --global --add safe.directory $EDITOR_DIR
 RUN git clone $EDITOR_URL $EDITOR_DIR
+RUN cd $EDITOR_DIR && git checkout $EDITOR_VERSION

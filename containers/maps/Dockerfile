@@ -1,7 +1,7 @@
 FROM ubuntu:focal AS intermediate
 
 RUN apt update -y && \
-    apt-get install -y wget unzip
+    apt-get install -y wget unzip ssh
 
 ARG SSH_PRIVATE_KEY
 RUN mkdir /root/.ssh
@@ -18,6 +18,6 @@ RUN mkdir -p $MAPS_DIR
 RUN wget -O maps.zip $MAPS_URL
 RUN unzip maps.zip
 
-RUN mv EQEmuMaps-master $MAPS_DIR
+RUN mv EQEmuMaps-master/* $MAPS_DIR
 
 RUN rm maps.zip

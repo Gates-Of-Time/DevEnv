@@ -8,7 +8,7 @@ update_database()
   rm -rf db
   mkdir -p db
 
-  wget -O db/latest.zip $DATABASE_URL
+  wget --no-check-certificate -O db/latest.zip $DATABASE_URL
 
   unzip -j -d db db/latest.zip
 
@@ -19,12 +19,10 @@ update_database()
 
   cd db
 
-  #sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i latest.sql
-  #sed '/INSERT INTO `aa_ability`/d' -i latest.sql
 
   echo "Updating database. This may take a few minutes..."
   cat *.sql  > latest.sql
-  mysql --defaults-extra-file=../config/my.cnf eqemu < latest.sql
+  cat latest.sql | sed 's/CREATE TABLE `\(.*\)`/TRUNCATE TABLE `\1`;\nCREATE TABLE IF NOT EXISTS `\1`/' | mysql --defaults-extra-file=../config/my.cnf eqemu
 
   cd ..
 
@@ -38,7 +36,7 @@ source_database()
   rm -rf db
   mkdir -p db
 
-  wget -O db/latest.zip $DATABASE_URL
+  wget --no-check-certificate -O db/latest.zip $DATABASE_URL
   wget -O db/peq-editor-schema.sql https://github.com/ProjectEQ/peqphpeditor/raw/master/sql/schema.sql
 
   unzip -j -d db db/latest.zip
@@ -55,11 +53,14 @@ source_database()
   echo "Sourcing database. This may take a few minutes..."
   cat *.sql  > latest.sql
   mysql --defaults-extra-file=../config/my.cnf eqemu < latest.sql
+  mysql --defaults-extra-file=../config/my.cnf eqemu < /home/eqemu/missing_tables.sql
   mysql --defaults-extra-file=../config/my.cnf eqemu -e "UPDATE launcher SET dynamics = 10;"
 
   cd ..
 
   rm -rf db
+
+  echo "Running eqemu_server scripts..."
 
   /home/eqemu/utils/scripts/eqemu_server.pl source_peq_db
   /home/eqemu/utils/scripts/eqemu_server.pl check_db_updates
@@ -103,19 +104,19 @@ read selection
 
 case $selection in
   1)
-    source_database http://kunark.fvproject.com/db_dump/latest.zip
+    source_database https://editor.fvproject.com/db_dump/latest.zip
     set_to classic
     ;;
   2)
-    source_database http://kunark.fvproject.com/db_dump/latest.zip
+    source_database https://editor.fvproject.com/db_dump/latest.zip
     set_to kunark
     ;;
   3)
-    source_database http://kunark.fvproject.com/db_dump/latest.zip
+    source_database https://editor.fvproject.com/db_dump/latest.zip
     set_to latest
     ;;
   4)
-    update_database http://kunark.fvproject.com/db_dump/latest.zip
+    update_database https://editor.fvproject.com/db_dump/latest.zip
     ;;
   5)
     cleanup

@@ -24,9 +24,19 @@ Then run the provision command first. You will be prompted to which database you
   ./provision.sh
 ```
 
-Once you have provisioned everything and preran shared_memory, you can start up the services:
+Once you have provisioned everything, you can start up the services:
 ```
   docker-compose up
+```
+If you want to use make code edits to the source code and use the dev builds, run the following:
+```
+  cd containers/eqemu-server
+  git clone {{EQEMU_SERVER_REPO_URL}} source
+  docker build -t fvproject/eqemu-server-builder -f Dockerfile.builder .
+  ./run.sh
+  cd /src
+  ./build.sh
+  docker-compose -f docker-compose.dev.yml up
 ```
 
 ## Prerequisites
@@ -36,6 +46,12 @@ The following need to be installed on the local machine:
 - Docker Compose
 
 ## How to rebuild docker images
+```
+docker compose build
+```
+
+OR
+
 ```
 cd containers/eqemu-server
 docker build -t fvproject/eqemu-server .

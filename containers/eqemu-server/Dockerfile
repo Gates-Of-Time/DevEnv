@@ -1,4 +1,6 @@
-FROM ubuntu:focal
+FROM debian:11-slim
+
+ENV DEBIAN_FRONTEND noninteractive
 
 ARG eqemu_release_tag=latest
 ENV EQEMU_RELEASE_TAG=c8b3ca53fe083c1b869625bbae1b5f9b13b75f02
@@ -6,7 +8,7 @@ ENV EQEMU_RELEASE_TAG=c8b3ca53fe083c1b869625bbae1b5f9b13b75f02
 ENV EQEMU_HOME=/home/eqemu
 ENV EQEMU_BUILD_DIR=/home/eqemu/build
 ENV EQEMU_SRC_DIR=/home/eqemu/source
-ENV SERVER_URL=https://github.com/EQEmu/Server.git
+ENV SERVER_URL=https://github.com/Gates-Of-Time/EmuServer.git
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -14,7 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && \
     apt-get install -y wget software-properties-common apt-transport-https lsb-release && \
     apt-get update -y && \
-    apt-get install -y python3-mysqldb mariadb-server mariadb-client mariadb-common libmysqlclient-dev build-essential debconf-utils gcc g++ libtool cpp cmake curl git git-core libboost-all-dev liblua5.1-dev libluabind-dev libperl-dev libperl5i-perl lua5.1 luajit libluajit-5.1-dev libmbedtls-dev libio-stringy-perl zlibc libjson-perl libsodium-dev libssl-dev uuid-dev minizip make locales nano open-vm-tools unzip iputils-ping wget gdb locate
+    apt-get install -y python3-mysqldb mariadb-server mariadb-client mariadb-common default-libmysqlclient-dev build-essential debconf-utils gcc g++ libtool cpp cmake curl git git-core libboost-all-dev liblua5.1-dev libluabind-dev libperl-dev lua5.1 luajit libluajit-5.1-dev libmbedtls-dev libio-stringy-perl jq libjson-perl libsodium-dev libssl-dev uuid-dev minizip make locales nano open-vm-tools unzip iputils-ping wget gdb locate libdbi-perl libdbd-mysql-perl
 
 # Set eqemu user
 RUN groupadd eqemu && \
@@ -23,20 +25,22 @@ RUN groupadd eqemu && \
     mkdir -p $EQEMU_BUILD_DIR
 
 # Copy eqemu sources
-RUN git clone $SERVER_URL $EQEMU_SRC_DIR && \
-    cd $EQEMU_SRC_DIR && \
-    git checkout $EQEMU_RELEASE_TAG && \
+ADD source $EQEMU_SRC_DIR
+# RUN git clone $SERVER_URL $EQEMU_SRC_DIR
+RUN cd $EQEMU_SRC_DIR && \
+#    git checkout $EQEMU_RELEASE_TAG && \
     git submodule init && \
     git submodule update
 
 # Compile eqemu
 RUN cd $EQEMU_BUILD_DIR && \
-    cmake $EQEMU_SRC_DIR && \
+    rm -f $EQEMU_SRC_DIR/CMakeCache.txt && \
+    cmake --config DEBUG -DCMAKE_BUILD_TYPE=Debug -DEQEMU_BUILD_LUA=ON -DLUA_INCLUDE_DIR=/usr/include/lua-5.1/ -G "Unix Makefiles" $EQEMU_SRC_DIR && \
     make -j `grep -P '^core id\t' /proc/cpuinfo | sort -u | wc -l` LDFLAGS="-all-static" && \
     make install
 
 # Move files into fresh container to ditch all the cruft:
-FROM ubuntu:focal
+FROM debian:11-slim
 
 USER root
 
@@ -50,9 +54,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && \
     apt-get install -y wget software-properties-common apt-transport-https lsb-release && \
     apt-get update -y && \
-    apt-get install -y python3-mysqldb mariadb-server mariadb-client mariadb-common libmysqlclient-dev build-essential debconf-utils gcc g++ libtool cpp cmake curl git git-core libboost-all-dev liblua5.1-dev libluabind-dev libperl-dev libperl5i-perl lua5.1 luajit libluajit-5.1-dev libmbedtls-dev libio-stringy-perl zlibc libjson-perl libsodium-dev libssl-dev uuid-dev minizip make locales nano open-vm-tools unzip iputils-ping wget php php-mysqli gdb locate apache2 php libapache2-mod-php php-cli php-mysql php-gd php-tidy php && \
+    apt-get install -y python3-mysqldb mariadb-server mariadb-client mariadb-common default-libmysqlclient-dev  build-essential debconf-utils gcc g++ libtool cpp cmake curl git git-core libboost-all-dev liblua5.1-dev libluabind-dev libperl-dev lua5.1 luajit  libdbi-perl libluajit-5.1-dev libmbedtls-dev libio-stringy-perl jq libjson-perl libsodium-dev libssl-dev uuid-dev minizip make locales nano open-vm-tools unzip iputils-ping wget php php-mysqli gdb locate apache2 php libapache2-mod-php php-cli php-mysql php-gd php-tidy php libdbd-mysql-perl && \
     rm -rf /tmp/* && \
     apt-get clean cache
+
+RUN yes '' | perl -MCPAN -e 'install Switch' && perl -MCPAN -e 'install Net::Telnet'
 
 # Set eqemu user
 RUN groupadd eqemu && \

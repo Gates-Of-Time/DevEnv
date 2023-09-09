@@ -1,6 +1,15 @@
 version: '3'
 services:
+  eqemu:
+    build:
+      context: containers/eqemu-server/
+      dockerfile: Dockerfile
+    image: fvproject/eqemu-server:latest
+
   editor:
+    build:
+      context: containers/peq-editor/
+      dockerfile: Dockerfile
     image: fvproject/peq-editor:latest
     restart: unless-stopped
     networks:
@@ -9,7 +18,6 @@ services:
       - "8080:80"
     depends_on:
       - db
-      - quests
     environment:
       DB_HOST: db
       DB_NAME: eqemu
@@ -25,6 +33,9 @@ services:
 
 
   maps:
+    build:
+      context: containers/maps/
+      dockerfile: Dockerfile
     image: fvproject/maps:latest
     restart: unless-stopped
     tty: true
@@ -33,17 +44,6 @@ services:
       - fvproject
     volumes:
       - maps:/home/eqemu/maps
-
-
-  quests:
-    image: fvproject/quests:latest
-    restart: unless-stopped
-    tty: true
-    stdin_open: true
-    networks:
-      - fvproject
-    volumes:
-      - quests:/home/eqemu/quests
 
 
   shared_memory:
@@ -57,15 +57,21 @@ services:
       - fvproject
     depends_on:
       - db
+      - eqemu
     volumes:
       - ./config/my.cnf:/home/eqemu/config/my.cnf
       - ./config/eqemu_config.json:/home/eqemu/eqemu_config.json
       - ./config/login.json:/home/eqemu/login.json
+      - ./config/plugin.pl:/home/eqemu/plugin.pl
+      - ./config/setup-database.sql:/home/eqemu/setup-database.sql
       - ./scripts/provision.sh:/home/eqemu/provision.sh
       - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
+      - ./scripts/missing_tables.sql:/home/eqemu/missing_tables.sql
       - ./backupdb.sh:/home/eqemu/backupdb.sh
+      - ./config/spells_us.txt:/home/eqemu/spells/spells_us.txt
       - ./logs:/home/eqemu/logs
       - ./config:/home/eqemu/config
+      - ./lua_modules:/home/eqemu/lua_modules
       - shared:/home/eqemu/shared
       - quests:/home/eqemu/quests
       - maps:/home/eqemu/maps
@@ -95,13 +101,17 @@ services:
       - "9080:9080/tcp"
       - "9081:9081/tcp"
     depends_on:
+      - eqemu
       - shared_memory
       - db
     volumes:
       - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
       - ./config/eqemu_config.json:/home/eqemu/eqemu_config.json
       - ./config/login.json:/home/eqemu/login.json
+      - ./config/plugin.pl:/home/eqemu/plugin.pl
+      - ./config/spells_us.txt:/home/eqemu/spells/spells_us.txt
       - ./logs:/home/eqemu/logs
+      - ./lua_modules:/home/eqemu/lua_modules
       - shared:/home/eqemu/shared
       - quests:/home/eqemu/quests
       - maps:/home/eqemu/maps
@@ -110,7 +120,7 @@ services:
 
   zone:
     image: fvproject/eqemu-server:latest
-    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "/usr/local/bin/eqlaunch", "zone"]
+    entrypoint: ["./wait-for-it.sh", "world:9000", "--", "/usr/local/bin/eqlaunch", "zone"]
     stdin_open: true
     restart: unless-stopped
     env_file:
@@ -122,13 +132,18 @@ services:
       - "7000-7100:7000-7100/udp"
     tty: true
     depends_on:
+      - eqemu
+      - shared_memory
       - world
       - db
     volumes:
       - ./scripts/wait-for-it.sh:/home/eqemu/wait-for-it.sh
       - ./config/eqemu_config.json:/home/eqemu/eqemu_config.json
       - ./config/login.json:/home/eqemu/login.json
+      - ./config/plugin.pl:/home/eqemu/plugin.pl
+      - ./config/spells_us.txt:/home/eqemu/spells/spells_us.txt
       - ./logs:/home/eqemu/logs
+      - ./lua_modules:/home/eqemu/lua_modules
       - shared:/home/eqemu/shared
       - quests:/home/eqemu/quests
       - maps:/home/eqemu/maps
@@ -143,10 +158,11 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MARIADB_USER: eqemu
-      MARIADB_PASSWORD: password
-      MARIADB_DATABASE: eqemu
-      MARIADB_ROOT_PASSWORD: password
+      MYSQL_USER: eqemu
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: eqemu
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ALLOW_EMPTY_PASSWORD: NO
     volumes:
       - database:/var/lib/mysql
 
@@ -155,15 +171,21 @@ networks:
 
 volumes:
   www:
-  maps:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: ${PWD}/maps
+      device: ${PWD}/www
+  maps:
   plugins:
   shared:
   database:
+  lua_modules:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${PWD}/lua_modules
   quests:
     driver: local
     driver_opts:
