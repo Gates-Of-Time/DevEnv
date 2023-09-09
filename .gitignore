@@ -10,5 +10,5 @@ quests
 lua_modules/*
 www
 peqeditor
-
+containers/eqemu-server/source
 config/eqemu_env.sh
